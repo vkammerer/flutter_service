@@ -21,16 +21,16 @@ public class FlutterServicePlugin implements FlutterPlugin, MethodCallHandler {
     // TODO: Move channel instantiation to initialize method using flutterBinding.getBinaryMessenger ?
     channel = new MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(),
         CHANNEL_NAME);
-    initizalize();
+    initialize();
   }
 
   public static void registerWith(Registrar registrar) {
     FlutterServicePlugin instance = new FlutterServicePlugin();
     final MethodChannel channel = new MethodChannel(registrar.messenger(), CHANNEL_NAME);
-    instance.initizalize();
+    instance.initialize();
   }
 
-  private void initizalize() {
+  private void initialize() {
     channel.setMethodCallHandler(this);
   }
 
