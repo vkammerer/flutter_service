@@ -9,7 +9,9 @@ const String _pluginChannelName =
     "com.vincentkammerer.flutter_service/plugin_channel";
 const String _backgroundExecutorChannelName =
     "com.vincentkammerer.flutter_service/background_executor_channel";
-const String _initializeMethod = "initialize";
+const String _initializeMethod = "INITIALIZE_METHOD";
+const String _stopForegroundServiceMethod = "STOP_FOREGROUND_SERVICE_METHOD";
+
 const String _callbackInitializedMethod = "initialized";
 
 void _flutterServiceCallbackDispatcher() {
@@ -71,6 +73,12 @@ class FlutterService {
     }
     final bool r = await _channel.invokeMethod<bool>(
         _initializeMethod, <dynamic>[handle.toRawHandle(), serviceTypes]);
+    return r ?? false;
+  }
+
+  static Future<bool> stopForegroundService() async {
+    final bool r =
+        await _channel.invokeMethod<bool>(_stopForegroundServiceMethod);
     return r ?? false;
   }
 }

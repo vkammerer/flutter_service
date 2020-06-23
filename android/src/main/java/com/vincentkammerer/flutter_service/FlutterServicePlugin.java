@@ -21,7 +21,9 @@ public class FlutterServicePlugin implements FlutterPlugin, MethodCallHandler {
 
   private static final String CHANNEL_NAME = "com.vincentkammerer.flutter_service/plugin_channel";
   protected static final String SHARED_PREFERENCES_KEY = "com.vincentkammerer.flutter_service.shared_preference_key";
-  private static String INITIALIZE_METHOD = "initialize";
+  private static String INITIALIZE_METHOD = "INITIALIZE_METHOD";
+  private static String STOP_FOREGROUND_SERVICE_METHOD = "STOP_FOREGROUND_SERVICE_METHOD";
+
   private static String TAG = "FlutterServicePlugin";
   private Context context;
   private Object initializationLock = new Object();
@@ -74,7 +76,12 @@ public class FlutterServicePlugin implements FlutterPlugin, MethodCallHandler {
           }
         }
         result.success(true);
-      } else {
+      }
+      else if (method.equals(STOP_FOREGROUND_SERVICE_METHOD)) {
+        FlutterForegroundService.stop();
+        result.success(true);
+      }
+      else {
         result.notImplemented();
       }
     } catch (JSONException e) {

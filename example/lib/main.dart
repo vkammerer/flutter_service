@@ -80,6 +80,10 @@ class _MyAppState extends State<MyApp> {
         payload: 'item x');
   }
 
+  Future<void> _stopForegroundService() async {
+    await FlutterService.stopForegroundService();
+  }
+
   static Future<void> foregroundServiceCallback() async {
     print('Alarm fired!');
 
@@ -126,6 +130,12 @@ class _MyAppState extends State<MyApp> {
                   buttonText: 'Show Notification in Foreground Service',
                   onPressed: () async {
                     await _broadcastNotification();
+                  },
+                ),
+                PaddedRaisedButton(
+                  buttonText: 'Stop Foreground Service',
+                  onPressed: () async {
+                    await _stopForegroundService();
                   },
                 ),
                 PaddedRaisedButton(

@@ -4,9 +4,11 @@ packages:
   android_alarm_manager:
     dependency: "direct main"
     description:
-      path: "../../android_alarm_manager"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: c35f946f52fdf9f110d6ccf5651ebc58848b8342
+      url: "https://github.com/vkammerer/android_alarm_manager.git"
+    source: git
     version: "0.0.1"
   archive:
     dependency: transitive
@@ -86,9 +88,11 @@ packages:
   flutter_local_notifications_broadcast:
     dependency: "direct main"
     description:
-      path: "../../flutter_local_notifications_broadcast"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "8af3ee004317f581d267e78902af7905c11f7096"
+      url: "https://github.com/vkammerer/flutter_local_notifications_broadcast.git"
+    source: git
     version: "0.0.1"
   flutter_local_notifications_platform_interface:
     dependency: transitive
@@ -100,9 +104,11 @@ packages:
   flutter_service:
     dependency: "direct main"
     description:
-      path: ".."
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: bdc9ce5e3bbaf23a71b002f086fef41f03276566
+      url: "https://github.com/vkammerer/flutter_service.git"
+    source: git
     version: "0.0.1"
   flutter_test:
     dependency: "direct dev"

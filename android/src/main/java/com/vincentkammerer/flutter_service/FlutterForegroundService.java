@@ -51,6 +51,11 @@ public class FlutterForegroundService extends Service {
     super.onDestroy();
   }
 
+  public static boolean stop() {
+    instance.stopForeground(true);
+    instance.stopSelf();
+    return true;
+  }
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
