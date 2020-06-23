@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.vincentkammerer.flutter_service_example">
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="flutter_service_example"
@@ -24,6 +25,20 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <receiver android:name="com.vincentkammerer.flutter_service.FlutterJobIntentServiceBroadcastReceiver" />
+        <receiver android:name="com.vincentkammerer.flutter_service.FlutterForegroundServiceBroadcastReceiver" />
+        <service
+          android:name="com.vincentkammerer.flutter_service.FlutterJobIntentService"
+          android:permission="android.permission.BIND_JOB_SERVICE"
+          />
+        <service android:name="com.vincentkammerer.flutter_service.FlutterForegroundService" />
+        <receiver
+          android:name="com.vincentkammerer.android_alarm_manager.AndroidAlarmManagerRebootBroadcastReceiver"
+          android:enabled="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
+            </intent-filter>
+        </receiver>
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
