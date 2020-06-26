@@ -52,6 +52,7 @@ public class FlutterForegroundService extends Service {
   }
 
   public static boolean stop() {
+    if (instance == null) return true;
     instance.stopForeground(true);
     instance.stopSelf();
     return true;
