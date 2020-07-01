@@ -18,12 +18,7 @@ dependencies:
     # See https://dart.dev/tools/pub/dependencies#version-constraints
     # The example app is bundled with the plugin so we use a path dependency on
     # the parent directory to use the current plugin's version.
-    git:
-      url: https://github.com/vkammerer/flutter_service.git
-
-  android_alarm_manager:
-    git:
-      url: https://github.com/vkammerer/android_alarm_manager.git
+    path: ../
 
   flutter_local_notifications_broadcast:
     git:

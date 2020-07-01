@@ -11,20 +11,20 @@ public class FlutterForegroundServiceBroadcastReceiver extends BroadcastReceiver
   @Override
   public void onReceive(Context context, Intent intent) {
     long callbackHandle = intent.getLongExtra("callbackHandle", 0);
-    int id = intent.getIntExtra("id", -1);
-
-    Intent serviceIntent = new Intent(context, FlutterForegroundService.class);
-    serviceIntent.putExtra("callbackHandle", callbackHandle);
-    serviceIntent.putExtra("id", id);
-    Notification notif = intent.getExtras().getParcelable("notification");
-    if (notif != null) {
-      serviceIntent.putExtra("notification", notif);
-    }
+    Notification notification = intent.getExtras().getParcelable("notification");
 
     if (FlutterForegroundService.isInstanceCreated() && callbackHandle != 0) {
-      FlutterForegroundService.enqueueBackgroundTaskProcessing(serviceIntent);
-    } else {
-      ContextCompat.startForegroundService(context, serviceIntent);
+      Intent callbackIntent = new Intent(context, FlutterForegroundService.class);
+      callbackIntent.putExtra("callbackHandle", callbackHandle);
+      int id = intent.getIntExtra("id", -1);
+      callbackIntent.putExtra("id", id);
+      FlutterForegroundService.enqueueBackgroundTaskProcessing(callbackIntent);
+    } else if (notification != null) {
+      Intent notificationIntent = new Intent(context, FlutterForegroundService.class);
+      notificationIntent.putExtra("notification", notification);
+      int notificationId = intent.getIntExtra("notificationId", -1);
+      notificationIntent.putExtra("notificationId", notificationId);
+      ContextCompat.startForegroundService(context, notificationIntent);
     }
   }
 }

@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:math';
 
-import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_local_notifications_broadcast/flutter_local_notifications_broadcast.dart';
@@ -136,38 +134,6 @@ class _MyAppState extends State<MyApp> {
                   buttonText: 'Stop Foreground Service',
                   onPressed: () async {
                     await _stopForegroundService();
-                  },
-                ),
-                PaddedRaisedButton(
-                  buttonText:
-                      'Schedule Notification update from ForegroundService',
-                  onPressed: () async {
-                    await AndroidAlarmManager.oneShot(
-                        const Duration(seconds: 10),
-                        // Ensure we have a unique alarm ID.
-                        Random().nextInt(pow(2, 31)),
-                        foregroundServiceCallback,
-                        exact: true,
-                        allowWhileIdle: true,
-                        wakeup: true,
-                        rescheduleOnReboot: true,
-                        serviceType: 'ForegroundService');
-                  },
-                ),
-                PaddedRaisedButton(
-                  buttonText:
-                      'Schedule Notification update from JobIntentService',
-                  onPressed: () async {
-                    await AndroidAlarmManager.oneShot(
-                      const Duration(seconds: 10),
-                      // Ensure we have a unique alarm ID.
-                      Random().nextInt(pow(2, 31)),
-                      jobIntentServiceCallback,
-                      exact: true,
-                      allowWhileIdle: true,
-                      wakeup: true,
-                      rescheduleOnReboot: true,
-                    );
                   },
                 ),
               ],

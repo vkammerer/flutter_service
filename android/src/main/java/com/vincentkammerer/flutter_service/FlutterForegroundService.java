@@ -61,7 +61,8 @@ public class FlutterForegroundService extends Service {
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
     Notification notif = intent.getExtras().getParcelable("notification");
-    startForeground(1, notif);
+    int notificationId = intent.getIntExtra("notificationId", 1);
+    startForeground(notificationId, notif);
     return START_STICKY;
   }
 
