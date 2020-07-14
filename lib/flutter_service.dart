@@ -41,28 +41,24 @@ void _flutterServiceCallbackDispatcher() {
   _channel.invokeMethod<void>(_callbackInitializedMethod);
 }
 
-typedef DateTime _Now();
 typedef CallbackHandle _GetCallbackHandle(Function callback);
 
 class FlutterService {
   static MethodChannel _channel =
       const MethodChannel(_pluginChannelName, JSONMethodCodec());
 
-  static _Now _now = () => DateTime.now();
   static _GetCallbackHandle _getCallbackHandle =
       (Function callback) => PluginUtilities.getCallbackHandle(callback);
 
-  /// This is exposed for the unit tests. It should not be accessed by users of
-  /// the plugin.
-  @visibleForTesting
-  static void setTestOverides(
-      {_Now now, _GetCallbackHandle getCallbackHandle}) {
-    _now = (now ?? _now);
-    _getCallbackHandle = (getCallbackHandle ?? _getCallbackHandle);
-  }
+  static final String foregroundServiceBroadcastReceiverClassName =
+      'com.vincentkammerer.flutter_service.FlutterForegroundServiceBroadcastReceiver';
+  static final String jobIntentServiceBroadcastReceiverClassName =
+      'com.vincentkammerer.flutter_service.FlutterForegroundServiceBroadcastReceiver';
 
-  static Future<bool> initialize(
-      {bool jobIntentService = true, bool foregroundService = false}) async {
+  static Future<bool> initialize({
+    bool jobIntentService = true,
+    bool foregroundService = false,
+  }) async {
     List<String> serviceTypes = [];
     if (jobIntentService) serviceTypes.add('JobIntentService');
     if (foregroundService) serviceTypes.add('ForegroundService');

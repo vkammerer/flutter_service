@@ -1,9 +1,26 @@
 import 'dart:async';
+import 'dart:isolate';
+import 'dart:math';
+import 'dart:ui';
 
+import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_local_notifications_broadcast/flutter_local_notifications_broadcast.dart';
 import 'package:flutter_service/flutter_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+/// Global [SharedPreferences] object.
+SharedPreferences prefs;
+
+/// The [SharedPreferences] key to access the alarm fire count.
+const String countKey = 'count';
+
+/// A port used to communicate from a background isolate to the UI isolate.
+final ReceivePort port = ReceivePort();
+
+/// The name associated with the UI isolate's [SendPort].
+const String isolateName = 'isolate';
 
 final FlutterLocalNotificationsBroadcast flutterLocalNotificationsBroadcast =
     FlutterLocalNotificationsBroadcast();
@@ -14,17 +31,24 @@ NotificationAppLaunchDetails notificationAppLaunchDetails;
 
 var androidPlatformChannelSpecifics = AndroidNotificationDetails(
     'your channel id', 'your channel name', 'your channel description',
-    importance: Importance.Max, priority: Priority.High, ticker: 'ticker');
+    importance: Importance.max, priority: Priority.high, ticker: 'ticker');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  IsolateNameServer.registerPortWithName(
+    port.sendPort,
+    isolateName,
+  );
+  prefs = await SharedPreferences.getInstance();
+  if (!prefs.containsKey(countKey)) {
+    await prefs.setInt(countKey, 0);
+  }
+
   notificationAppLaunchDetails =
       await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
 
-  var initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
-  var initializationSettingsIOS = IOSInitializationSettings();
   var initializationSettings = InitializationSettings(
-      initializationSettingsAndroid, initializationSettingsIOS);
+      android: AndroidInitializationSettings('app_icon'));
   await flutterLocalNotificationsPlugin.initialize(
     initializationSettings,
     onSelectNotification: (String payload) async {
@@ -36,80 +60,42 @@ void main() async {
   runApp(MyApp());
 }
 
-class PaddedRaisedButton extends StatelessWidget {
-  final String buttonText;
-  final VoidCallback onPressed;
-
-  const PaddedRaisedButton({
-    @required this.buttonText,
-    @required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 20.0),
-      child: RaisedButton(child: Text(buttonText), onPressed: onPressed),
-    );
-  }
-}
-
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  int _counter = 0;
 
   @override
   void initState() {
     super.initState();
+    initialize();
+  }
+
+  void initialize() async {
     FlutterService.initialize(jobIntentService: true, foregroundService: true);
+    port.listen((_) async {
+      await prefs.reload();
+      setState(() {
+        _counter = prefs.getInt(countKey);
+      });
+    });
+    setState(() {
+      _counter = prefs.getInt(countKey);
+    });
   }
 
-  Future<void> _broadcastNotification() async {
-    await flutterLocalNotificationsBroadcast.broadcast(
-        1,
-        'plain title',
-        'plain body',
-        'com.vincentkammerer.flutter_service.FlutterForegroundServiceBroadcastReceiver',
-        notificationDetails: androidPlatformChannelSpecifics,
-        payload: 'item x');
-  }
+  static Future<void> updateCounter() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
+    int currentCount = prefs.getInt(countKey);
+    await prefs.setInt(countKey, currentCount + 1);
 
-  Future<void> _stopForegroundService() async {
-    await FlutterService.stopForegroundService();
-  }
-
-  static Future<void> foregroundServiceCallback() async {
-    print('Alarm fired!');
-
-    // Get the previous cached count and increment it.
-    await Future.delayed(Duration(seconds: 2));
-    DateTime _now = DateTime.now();
-    await flutterLocalNotificationsBroadcast.broadcast(
-        1,
-        'Updated in ForegroundService',
-        'notification updated in ForegroundService at ${_now.hour}:${_now.minute}:${_now.second}',
-        'com.vincentkammerer.flutter_service.FlutterForegroundServiceBroadcastReceiver',
-        notificationDetails: androidPlatformChannelSpecifics,
-        payload: 'item x');
-  }
-
-  static Future<void> jobIntentServiceCallback() async {
-    print('Alarm fired 2!');
-
-    // Get the previous cached count and increment it.
-    await Future.delayed(Duration(seconds: 2));
-    DateTime _now = DateTime.now();
-    await flutterLocalNotificationsBroadcast.broadcast(
-        1,
-        'Updated in JobIntentService',
-        'notification updated in JobIntentService at ${_now.hour}:${_now.minute}:${_now.second}',
-        'com.vincentkammerer.flutter_service.FlutterForegroundServiceBroadcastReceiver',
-        notificationDetails: androidPlatformChannelSpecifics,
-        payload: 'item x');
+    // This will be null if we're running in the background.
+    SendPort uiSendPort = IsolateNameServer.lookupPortByName(isolateName);
+    uiSendPort?.send(null);
   }
 
   @override
@@ -124,16 +110,65 @@ class _MyAppState extends State<MyApp> {
           child: Center(
             child: Column(
               children: <Widget>[
-                PaddedRaisedButton(
-                  buttonText: 'Show Notification in Foreground Service',
+                Text('Shared preferences counter: $_counter'),
+                RaisedButton(
+                  child: Text(
+                    'Update counter',
+                  ),
                   onPressed: () async {
-                    await _broadcastNotification();
+                    updateCounter();
                   },
                 ),
-                PaddedRaisedButton(
-                  buttonText: 'Stop Foreground Service',
+                RaisedButton(
+                  child: Text('Show Notification in ForegroundService'),
                   onPressed: () async {
-                    await _stopForegroundService();
+                    await flutterLocalNotificationsBroadcast.broadcast(
+                      1,
+                      'Hello',
+                      'I am the Foreground Service notification',
+                      FlutterService
+                          .foregroundServiceBroadcastReceiverClassName,
+                      notificationDetails: androidPlatformChannelSpecifics,
+                    );
+                  },
+                ),
+                RaisedButton(
+                  child: Text(
+                    'Update counter from JobIntentService via Alarm Manager',
+                  ),
+                  onPressed: () async {
+                    await AndroidAlarmManager.oneShot(
+                      const Duration(seconds: 5),
+                      // Ensure we have a unique alarm ID.
+                      Random().nextInt(pow(2, 31)),
+                      updateCounter,
+                      exact: true,
+                      wakeup: true,
+                      allowWhileIdle: true,
+                    );
+                  },
+                ),
+                RaisedButton(
+                  child: Text(
+                      'Update counter from ForegroundService via Alarm Manager'),
+                  onPressed: () async {
+                    await AndroidAlarmManager.oneShot(
+                      const Duration(seconds: 10),
+                      // Ensure we have a unique alarm ID.
+                      Random().nextInt(pow(2, 31)),
+                      updateCounter,
+                      exact: true,
+                      allowWhileIdle: true,
+                      wakeup: true,
+                      rescheduleOnReboot: true,
+                      serviceType: 'ForegroundService',
+                    );
+                  },
+                ),
+                RaisedButton(
+                  child: Text('Stop ForegroundService'),
+                  onPressed: () async {
+                    await FlutterService.stopForegroundService();
                   },
                 ),
               ],

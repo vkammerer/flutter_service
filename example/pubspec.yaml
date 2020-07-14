@@ -18,11 +18,16 @@ dependencies:
     # See https://dart.dev/tools/pub/dependencies#version-constraints
     # The example app is bundled with the plugin so we use a path dependency on
     # the parent directory to use the current plugin's version.
-    path: ../
+    git:
+      url: https://github.com/vkammerer/flutter_service.git
+  android_alarm_manager:
+    git:
+      url: https://github.com/vkammerer/android_alarm_manager.git
 
   flutter_local_notifications_broadcast:
     git:
       url: https://github.com/vkammerer/flutter_local_notifications_broadcast.git
+  shared_preferences:
 
 
   # The following adds the Cupertino Icons font to your application.

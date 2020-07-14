@@ -65,9 +65,9 @@ public class FlutterJobIntentService extends JobIntentService {
   /**
    * Schedule the alarm to be handled by the {@link FlutterJobIntentService}.
    */
-  public static void enqueueBackgroundTaskProcessing(Context context, Intent alarmContext) {
+  public static void enqueueBackgroundTaskProcessing(Context context, Intent intent) {
     Log.i(TAG, "FlutterJobIntentService enqueueBackgroundTaskProcessing.");
-    enqueueWork(context, FlutterJobIntentService.class, JOB_ID, alarmContext);
+    enqueueWork(context, FlutterJobIntentService.class, JOB_ID, intent);
   }
 
   /**
