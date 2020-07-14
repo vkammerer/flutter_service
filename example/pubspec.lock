@@ -115,7 +115,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: ba5bfbf034f99013bcb27a88754f4a85b5d29769
+      resolved-ref: "5d7e40bdaf791fc0009a7b59e70200f6e2908181"
       url: "https://github.com/vkammerer/flutter_service.git"
     source: git
     version: "0.0.1"
