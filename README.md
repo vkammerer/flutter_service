@@ -79,3 +79,6 @@ For example, [firebase_messaging](https://github.com/FirebaseExtended/flutterfir
 
 ![potential use diagram for flutter_service](https://vkammerer.github.io/flutter_service/images/flutter_service_potential_use.svg)
 
+### Credits
+This project is largely an adaptation of the work done in the Flutter Android Alarm Manager plugin, especially the [FlutterBackgroundExecutor class](https://github.com/vkammerer/flutter_service/blob/master/android/src/main/java/com/vincentkammerer/flutter_service/FlutterBackgroundExecutor.java).   
+So most of the original comments have been preserved in the Android code to reflect that legacy.
