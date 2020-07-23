@@ -20,13 +20,6 @@ dependencies:
     # the parent directory to use the current plugin's version.
     git:
       url: https://github.com/vkammerer/flutter_service.git
-  android_alarm_manager:
-    git:
-      url: https://github.com/vkammerer/android_alarm_manager.git
-
-  flutter_local_notifications_broadcast:
-    git:
-      url: https://github.com/vkammerer/flutter_local_notifications_broadcast.git
   shared_preferences:
 
 

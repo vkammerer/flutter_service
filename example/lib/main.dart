@@ -1,12 +1,8 @@
 import 'dart:async';
 import 'dart:isolate';
-import 'dart:math';
 import 'dart:ui';
 
-import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_local_notifications_broadcast/flutter_local_notifications_broadcast.dart';
 import 'package:flutter_service/flutter_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,17 +18,6 @@ final ReceivePort port = ReceivePort();
 /// The name associated with the UI isolate's [SendPort].
 const String isolateName = 'isolate';
 
-final FlutterLocalNotificationsBroadcast flutterLocalNotificationsBroadcast =
-    FlutterLocalNotificationsBroadcast();
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
-
-NotificationAppLaunchDetails notificationAppLaunchDetails;
-
-var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-    'your channel id', 'your channel name', 'your channel description',
-    importance: Importance.max, priority: Priority.high, ticker: 'ticker');
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   IsolateNameServer.registerPortWithName(
@@ -44,19 +29,6 @@ void main() async {
     await prefs.setInt(countKey, 0);
   }
 
-  notificationAppLaunchDetails =
-      await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
-
-  var initializationSettings = InitializationSettings(
-      android: AndroidInitializationSettings('app_icon'));
-  await flutterLocalNotificationsPlugin.initialize(
-    initializationSettings,
-    onSelectNotification: (String payload) async {
-      if (payload != null) {
-        debugPrint('notification payload: ' + payload);
-      }
-    },
-  );
   runApp(MyApp());
 }
 
@@ -117,52 +89,6 @@ class _MyAppState extends State<MyApp> {
                   ),
                   onPressed: () async {
                     updateCounter();
-                  },
-                ),
-                RaisedButton(
-                  child: Text('Show Notification in ForegroundService'),
-                  onPressed: () async {
-                    await flutterLocalNotificationsBroadcast.broadcast(
-                      1,
-                      'Hello',
-                      'I am the Foreground Service notification',
-                      FlutterService
-                          .foregroundServiceBroadcastReceiverClassName,
-                      notificationDetails: androidPlatformChannelSpecifics,
-                    );
-                  },
-                ),
-                RaisedButton(
-                  child: Text(
-                    'Update counter from JobIntentService via Alarm Manager',
-                  ),
-                  onPressed: () async {
-                    await AndroidAlarmManager.oneShot(
-                      const Duration(seconds: 5),
-                      // Ensure we have a unique alarm ID.
-                      Random().nextInt(pow(2, 31)),
-                      updateCounter,
-                      exact: true,
-                      wakeup: true,
-                      allowWhileIdle: true,
-                    );
-                  },
-                ),
-                RaisedButton(
-                  child: Text(
-                      'Update counter from ForegroundService via Alarm Manager'),
-                  onPressed: () async {
-                    await AndroidAlarmManager.oneShot(
-                      const Duration(seconds: 10),
-                      // Ensure we have a unique alarm ID.
-                      Random().nextInt(pow(2, 31)),
-                      updateCounter,
-                      exact: true,
-                      allowWhileIdle: true,
-                      wakeup: true,
-                      rescheduleOnReboot: true,
-                      serviceType: 'ForegroundService',
-                    );
                   },
                 ),
                 RaisedButton(
